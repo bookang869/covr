@@ -25,8 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <Navigation isLoggedIn={true} hasNotifications={false} hasMessages={false} />
-      <div className="px-20 py-28">{children}</div>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Navigation isLoggedIn={true} hasNotifications={false} hasMessages={false} />
+        <div className="px-20 py-28">{children}</div>
+      </body>
     </html>
   );
 }

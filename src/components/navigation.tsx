@@ -154,7 +154,7 @@ export default function Navigation({
 }) {
   return (
     // Main navigation container, fixed at the top
-    <nav className="flex px-20 h-16 items-center justify-between backdrop-blur fixed top-0 left-0 right-0 z-50 bg-background/50">
+    <div className="flex px-20 h-16 items-center justify-between backdrop-blur fixed top-0 left-0 right-0 z-50 bg-background/50">
       {/* Left section: Logo and main menu */}
       <div className="flex items-center gap-2">
         {/* App logo/title */}
@@ -298,6 +298,6 @@ export default function Navigation({
           </Button>
         </div>
       )}
-    </nav>
+    </div>
   );
 }

@@ -1,0 +1,78 @@
+# COVR – Cursor Project Rules (Tech Lead Mode)
+
+## Project Overview
+- Name: covr
+- Goal: Vendor risk tracker (auth/RBAC, vendors, documents with expiries, incidents from security news, tasks, audit log, notifications).
+- Hosting: Vercel
+- Core Services: Supabase Postgres, AWS S3, Inngest (jobs), Upstash Redis, Resend, Slack Webhooks
+- Stack: Next.js 15 (App Router, RSC), React 18, TypeScript 5, Prisma 5, Auth.js v5, Tailwind + shadcn/ui, Zod, Jest/RTL, Playwright
+
+## General Directives
+1. Prefer **small, composable PRs**. Do not generate massive diffs; propose incremental changes.
+2. For each change, include:
+   - File diffs, short rationale, and basic tests.
+   - Notes on security/role checks and org scoping.
+3. Never add a dependency unless it’s required by the current task. If proposing one, justify why.
+4. Follow the roadmap phases. If user asks for a later feature, scaffold lightly and leave TODOs + tests skipped.
+5. Use **pnpm** scripts; update `package.json` when adding tasks.
+
+## Code Style & Architecture
+- TypeScript strict mode, no `any` unless justified with a comment.
+- Server: Prefer Route Handlers (`app/api/.../route.ts`) over API routes in `pages`.
+- Data access goes through Prisma; every query must be **org-scoped**.
+- Validation: Use **Zod** at API boundaries; parse request body with zod schemas.
+- RBAC: Use `requireRole(role, allowed)` helper before mutations.
+- Errors: Throw typed errors; handle with Next Responses (4xx for client, 5xx for server). Log to Sentry.
+- RSC first for reads (lists/detail). Use Server Actions sparingly for simple mutations in the same module.
+- Naming:
+  - Components: `PascalCase.tsx`, hooks `useThing.ts`, utilities `thing.ts`.
+  - API route files: group by resource (`/api/vendors`, `/api/vendors/[id]`).
+  - Tests colocation: `__tests__` for units, `tests/` for Playwright e2e.
+- Env access: centralize in `lib/env.ts` with `zod` parsing.
+
+## Security & Privacy
+- Never return sensitive fields (secrets, service keys).
+- All mutations/checks must confirm the authenticated user is a member of the org with sufficient role.
+- S3 keys: use per-org prefixes. Do not interpolate unsanitized paths/keys.
+
+## Performance
+- Use proper indexes (already defined). If proposing a new query pattern, propose an index.
+- Prefer RSC for data fetching; avoid client waterfalls.
+- Memoize expensive pure functions; avoid re-render churn.
+
+## Testing Expectations
+- For utilities and schema validation, write Jest unit tests alongside code.
+- For critical flows (login mocked, vendor CRUD, document upload), include Playwright smoke tests.
+- Write at least one negative test per API handler (bad payload or insufficient role).
+
+## Git & CI
+- Conventional commits: feat, fix, chore, refactor, test, docs.
+- CI must pass lint, typecheck, tests. If adding new envs, mock/fallback in tests.
+
+## Observability
+- Implement `/api/healthz` (status only).
+- Use Sentry for server errors. Avoid spamming logs; log actionable context only.
+
+## Task-Specific Rules (high-frequency)
+- AUTH: After setting up Auth.js, ensure `getServerSession` is used server-side; add a utility to extract `userId` & org from cookie.
+- ORG CONTEXT: Require org cookie/header; if missing, redirect to org picker.
+- VENDORS: On create, default `riskLevel=LOW`, `dataSensitivity=NONE`, `status=ACTIVE`.
+- DOCUMENTS: Presign endpoint must verify user has write access to vendor’s org. Accept `contentType`, return URL for PUT.
+- INCIDENTS: Implement matcher that normalizes domains; basic substring or Levenshtein if needed but keep it deterministic.
+- TASKS: Allow assign/unassign; filter by `status` and `assigneeId`. Keep it a simple list first.
+- AUDIT LOG: Prisma middleware on CREATE/UPDATE/DELETE of Vendor/Document/Incident/Task. Store actorId if available.
+
+## What NOT to do
+- Don’t introduce state management libs unless necessary. Use React Query only if RSC doesn’t fit a page.
+- Don’t bypass Zod. Don’t access `process.env` outside `lib/env.ts`.
+- Don’t write long functions; prefer small, testable helpers.
+
+## Review Checklist (Cursor should check before finalizing)
+- [ ] Org scoping and RBAC enforced?
+- [ ] Zod input validation present?
+- [ ] Error codes appropriate (4xx vs 5xx)?
+- [ ] Tests included/updated?
+- [ ] No unused deps or dead code?
+- [ ] Performance considerations noted (RSC, indexes)?
+- [ ] Secrets handled via env, not in code?
+- [ ] Clear commit message prepared?
