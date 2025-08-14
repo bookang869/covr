@@ -3,6 +3,7 @@
 **Goal:** Track vendors, collect security docs, and alert on breaches or expiring compliance documents.
 
 ## MVP Scope (3–4 weeks)
+
 - Auth & RBAC (Org-scoped)
 - Vendor registry & risk score
 - Document upload to S3 (presigned)
@@ -12,6 +13,7 @@
 - Audit log; Slack/Email notifications
 
 ## Tech Stack
+
 Next.js 15 (App Router), React 18, TypeScript 5, Auth.js v5, Prisma 5, Postgres (Supabase), Inngest, Upstash Redis, S3, Resend/SES, Tailwind + shadcn/ui, Jest/RTL, Playwright, Sentry, Vercel.
 
 # Build Checklist (MVP)
