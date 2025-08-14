@@ -13,5 +13,6 @@ export async function GET() {
     service: 'covr',
     version: process.env.NEXT_PUBLIC_APP_VERSION ?? 'dev',
     ts: new Date().toISOString(),
+    test: 'test',
   });
 }
