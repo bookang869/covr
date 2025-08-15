@@ -1,0 +1,22 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Prisma turns this file into SQL migrations and a type-safe PrismaClient
+
+// schema.prisma has 3 main sections:
+// 1. Generators -> tell Prisma how to generate the Prisma client (what to output)
+generator client {
+  provider = "prisma-client-js" // Generate a TS client library sos I can do import { PrismaClient } from '@prisma/client' in my code.
+  output   = "../src/generated/prisma"
+}
+
+// 2. Data sources -> tell Prisma which DB to connect to and how
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 3. Data model -> describe your tables (called models), enums, and relationships
