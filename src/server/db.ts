@@ -9,5 +9,6 @@ export const prisma =
   new PrismaClient({
     log: ['error', 'warn'], // you can add 'query' during debugging
   });
+
 // (Development ONLY) if not in production, set the global Prisma instance to the one we just created
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
