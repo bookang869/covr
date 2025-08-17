@@ -1,41 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-// Prisma turns this file into SQL migrations and a type-safe PrismaClient
-
-// schema.prisma has 3 main sections:
-// 1. Generators -> tell Prisma how to generate the Prisma client (what to output)
 generator client {
-  provider = "prisma-client-js" // Generate a TS client library sos I can do import { PrismaClient } from '@prisma/client' in my code.
+  provider = "prisma-client-js"
 }
 
-// 2. Data sources -> tell Prisma which DB to connect to and how
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// 3. Data model -> describe your tables (called models), enums, and relationships
-// FieldName | FieldType | Attirbutes (@)
-
-// Auth.js (NextAuth) models
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
-
-  accounts Account[]
-  sessions Session[]
-
-  // covr relationships
-  memberships Membership[]
-  auditLogs   AuditLog[]   @relation("AuditActor")
-  Vendor      Vendor[]
+  accounts      Account[]
+  auditLogs     AuditLog[]   @relation("AuditActor")
+  memberships   Membership[]
+  sessions      Session[]
+  Vendor        Vendor[]
 }
 
 model Account {
@@ -51,8 +33,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -62,8 +43,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -74,58 +54,46 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Multi-tenant models
-enum Role {
-  ADMIN
-  ANALYST
-  VIEWER
-}
-
 model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String       @id @default(cuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  auditLogs   AuditLog[]   @relation("AuditOrg")
   memberships Membership[]
   vendors     Vendor[]
-  auditLogs   AuditLog[]   @relation("AuditOrg")
 }
 
 model Membership {
-  id     String @id @default(cuid())
+  id     String       @id @default(cuid())
   orgId  String
   userId String
-  role   Role   @default(VIEWER)
-
-  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role         @default(VIEWER)
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([orgId, userId])
 }
 
-// Early domain models
 model Vendor {
-  id              String   @id @default(cuid())
+  id              String       @id @default(cuid())
   orgId           String
   name            String
   domain          String?
   ownerId         String?
-  riskLevel       Int      @default(0) // simple number for now
-  dataSensitivity Int      @default(0) // simple number for now
-  status          String   @default("ACTIVE")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  riskLevel       Int          @default(0)
+  dataSensitivity Int          @default(0)
+  status          String       @default("ACTIVE")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  org             Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  owner           User?        @relation(fields: [ownerId], references: [id])
 
-  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  owner User?        @relation(fields: [ownerId], references: [id])
-
-  // helpful indexes
   @@index([orgId], map: "idx_vendor_org")
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
+  id         String       @id @default(cuid())
   orgId      String
   actorId    String?
   entityType String
@@ -133,8 +101,13 @@ model AuditLog {
   action     String
   before     Json?
   after      Json?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime     @default(now())
+  actor      User?        @relation("AuditActor", fields: [actorId], references: [id])
+  org        Organization @relation("AuditOrg", fields: [orgId], references: [id], onDelete: Cascade)
+}
 
-  org   Organization @relation("AuditOrg", fields: [orgId], references: [id], onDelete: Cascade)
-  actor User?        @relation("AuditActor", fields: [actorId], references: [id])
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
 }
