@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Navigation from '@/components/navigation';
+import UserNav from '@/components/auth/user-nav';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,7 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Navigation isLoggedIn={true} hasNotifications={false} hasMessages={false} />
+        {/* <header className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-semibold tracking-tight">covr</h1>
+          <UserNav />
+        </header> */}
+        <Navigation isLoggedIn={false} hasNotifications={false} hasMessages={false} />
         <div className="px-20 py-28">{children}</div>
       </body>
     </html>
