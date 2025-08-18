@@ -18,9 +18,9 @@ Next.js 15 (App Router), React 18, TypeScript 5, Auth.js v5, Prisma 5, Postgres 
 
 # Build Checklist (MVP)
 
-- [ ] Phase 1: Scaffold Next.js + Tailwind + shadcn
-- [ ] Phase 2: First deploy (Vercel) + /healthz
-- [ ] Phase 3: Auth + Orgs + RBAC
+- [O] Phase 1: Scaffold Next.js + Tailwind + shadcn
+- [O] Phase 2: First deploy (Vercel) + /healthz
+- [O] Phase 3: Auth + Orgs + RBAC
 - [ ] Phase 4: Vendor CRUD
 - [ ] Phase 5: Document intake (S3 presigned)
 - [ ] Phase 6: Expiry sweeps (Inngest + Cron)
