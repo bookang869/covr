@@ -7,7 +7,7 @@ export default async function Page() {
     // Simple guard for now; we’ll centralize guards shortly
     return <div className="text-sm">Please sign in to access the dashboard.</div>;
   }
-  const userId = (session.user as any).id as string;
+  const userId = session.user.id;
   const orgId = await ensureUserOrg(userId);
 
   return (
