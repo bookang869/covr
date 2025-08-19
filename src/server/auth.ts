@@ -1,22 +1,10 @@
-import NextAuth, { type DefaultSession } from 'next-auth';
+import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 // import Credentials from 'next-auth/providers/credentials';
 import { prisma } from '@/server/db';
 // import { compare } from 'bcrypt'; // only if you add password login
-
-// Extend the built-in session types
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      image?: string;
-    } & DefaultSession['user'];
-  }
-}
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -43,8 +31,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     //     const user = await prisma.user.findUnique({ where: { email: creds.email } });
     //     if (!user || !user.passwordHash) return null;
     //     const ok = await compare(creds.password, user.passwordHash);
-    //     if (!ok) return null;
-    //     return user;
+    //     return ok ? user : null;
     //   },
     // }),
   ],
@@ -53,10 +40,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async session({ session, user }) {
-      // Now TypeScript knows that session.user.id exists
-      if (session.user) {
-        session.user.id = user.id;
-      }
+      // attach user id for server components convenience
+      if (session.user) (session.user as any).id = user.id;
       return session;
     },
   },
